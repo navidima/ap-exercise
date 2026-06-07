@@ -1,6 +1,7 @@
 package main.java.library.util;
 
 import main.java.library.model.Book;
+import org.w3c.dom.css.Counter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -43,6 +44,60 @@ public class FileManager {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static List<String> readBookPages(String filePath, int linesPerPage) {
+        List<String> pages = new ArrayList<>();
+        File book = new File(filePath);
+
+        try (BufferedReader bookReader = new BufferedReader(new FileReader(book))){
+            StringBuilder page = new StringBuilder();
+            String line;
+
+            outer:
+            while (true) {
+                for (int i = 0; i < linesPerPage; i++) {
+                    if ((line = bookReader.readLine()) != null) {
+                        page.append(line).append(System.lineSeparator());
+                    } else {
+                        pages.add(page.toString());
+                        break outer;
+                    }
+                }
+                pages.add(page.toString());
+                page.setLength(0);
+            }
+        } catch (IOException e) {
+            pages.add(String.format("file \" %s \" does not exist", book.getAbsolutePath()));
+        }
+        return pages;
+    }
+
+    public static int countLines(String filePath) {
+        int counter = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
+            while (reader.readLine() != null) {
+                counter++;
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+        return counter;
+    }
+
+    public static void writeBookText(String filePath, String content) throws IOException{
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))){
+           writer.write(content);
+        }
+    }
+
+    public static String readFullText(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
+            return reader.readAllAsString();
+        } catch (IOException ignored) {
+            return "";
         }
     }
 }
