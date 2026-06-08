@@ -23,7 +23,7 @@ public class FileManager {
             while (scn.hasNextLine()) {
                 String bookLine = scn.nextLine();
                 String[] details = bookLine.split(",");
-                Book newBook = new Book(details[0],details[4],details[1],details[2],Integer.parseInt(details[3]));
+                Book newBook = new Book(details[0],BOOKS_TEXT_DIR + File.separator + details[4],details[1],details[2],Integer.parseInt(details[3]));
                 books.add(newBook);
             }
         } catch (FileNotFoundException e) {
@@ -39,7 +39,7 @@ public class FileManager {
             bw.write("title,author,publisher,year,file");
             bw.newLine();
             for (Book book : books) {
-                bw.write(book.getTitle() + "," + book.getAuthor() + "," + book.getPublisher() + "," + book.getPublicationYear() + "," + book.getTextFilePath());
+                bw.write(book.getTitle() + "," + book.getAuthor() + "," + book.getPublisher() + "," + book.getPublicationYear() + "," + new File(book.getTextFilePath()).getName());
                 bw.newLine();
             }
         } catch (IOException e) {
