@@ -4,11 +4,8 @@ import main.java.library.model.Book;
 import main.java.library.service.LibraryService;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 public class MainFrame extends JFrame {
@@ -22,7 +19,7 @@ public class MainFrame extends JFrame {
     public JTextField publisherField;
     public JTextField yearField;
     public JTextArea pageArea;
-    public List pages;
+    public List<String> pages;
     public int currentPage;
     public MainFrame()
     {
@@ -32,8 +29,6 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
-
-        Font globalFont = new Font("Arial", Font.PLAIN, 14);
 
         readerPanel = new JPanel();
         readerPanel.setLayout(null);
@@ -60,24 +55,18 @@ public class MainFrame extends JFrame {
             JButton button = new JButton(book.getTitle());
             button.setFont(buttonFont);
 
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    selectedBook = book;
-                    menuPanel.removeAll();
-                    showBookMenu();
-                }
+            button.addActionListener(_ -> {
+                selectedBook = book;
+                menuPanel.removeAll();
+                showBookMenu();
             });
             booksPanel.add(button);
         }
         JButton refreshButton = new JButton("Refresh");
         refreshButton.setFont(buttonFont);
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                booksPanel.removeAll();
-                createBooksPanel();
-            }
+        refreshButton.addActionListener(_ -> {
+            booksPanel.removeAll();
+            createBooksPanel();
         });
 
         booksPanel.add(refreshButton);
@@ -118,53 +107,37 @@ public class MainFrame extends JFrame {
 
         JButton readButton = new JButton("Read Book");
         readButton.setBounds(150, 350, 110, 35);
-        readButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openBook(false);
-            }
-        });
+        readButton.addActionListener(_ -> openBook(false));
 
         JButton editButton = new JButton("Edit Book");
         editButton.setBounds(275, 350, 110, 35);
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openBook(true);
-            }
-        });
+        editButton.addActionListener(_ -> openBook(true));
 
         JButton saveButton = new JButton("Save changes");
         saveButton.setBounds(400, 350, 120, 35);
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String title = titleField.getText();
-                String author = authorField.getText();
-                String publisher = publisherField.getText();
-                try {
-                    int year = Integer.parseInt(yearField.getText());
+        saveButton.addActionListener(_ -> {
+            String title = titleField.getText();
+            String author = authorField.getText();
+            String publisher = publisherField.getText();
+            try {
+                int year = Integer.parseInt(yearField.getText());
 
-                    boolean situation = service.editBookMetadata(selectedBook.getId(),title,author,publisher,year);
-                    if (situation)
-                        JOptionPane.showMessageDialog(MainFrame.this, "Information changed successfully");
-                    else
-                        JOptionPane.showMessageDialog(MainFrame.this, "An error occurred");
+                boolean situation = service.editBookMetadata(selectedBook.getId(),title,author,publisher,year);
+                if (situation)
+                    JOptionPane.showMessageDialog(MainFrame.this, "Information changed successfully");
+                else
+                    JOptionPane.showMessageDialog(MainFrame.this, "An error occurred");
 
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(MainFrame.this, "Please inter a valid number for year");
-                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(MainFrame.this, "Please inter a valid number for year");
             }
         });
 
         JButton backButton = new JButton("Back");
         backButton.setBounds(535, 350, 85, 35);
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                booksPanel.removeAll();
-                createBooksPanel();
-            }
+        backButton.addActionListener(_ -> {
+            booksPanel.removeAll();
+            createBooksPanel();
         });
 
         menuPanel.add(titleLabel);
@@ -187,12 +160,76 @@ public class MainFrame extends JFrame {
         revalidate();
         repaint();
 
-
     }
 
-    public void openBook(boolean editable)
-    {
+    public void openBook(boolean editable) {
 
+        readerPanel.removeAll();
+        pages = service.getBookPages(selectedBook, 3);
+        currentPage = 0;
+
+        JLabel bookTitle = new JLabel(selectedBook.getTitle(), SwingConstants.CENTER);
+        bookTitle.setBounds(280, 10, 240, 25);
+        bookTitle.setFont(new Font("Times New Roman", Font.BOLD, 20));
+
+        pageArea = new JTextArea();
+        pageArea.setBounds(80, 40, 640, 400);
+        pageArea.setMargin(new Insets(15, 15, 10, 15));
+        pageArea.setEditable(editable);
+        pageArea.setLineWrap(true);
+        pageArea.setWrapStyleWord(true);
+        pageArea.setText(pages.get(currentPage));
+        pageArea.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+        pageArea.setBackground(Color.decode("#F5F1E8"));
+        pageArea.setForeground(Color.decode("#2C2C2C"));
+        pageArea.setCaretColor(Color.red);
+
+        JButton nextPage = new JButton(">");
+        nextPage.setBounds(660, 450, 60, 30);
+        nextPage.addActionListener(_ -> {
+            if (currentPage < pages.size() - 1) {
+                currentPage ++;
+                pageArea.setText(pages.get(currentPage));
+            }
+        });
+
+        JButton previousPage = new JButton("<");
+        previousPage.setBounds(80, 450, 60, 30);
+        previousPage.addActionListener(_ -> {
+            if (currentPage > 0) {
+                currentPage --;
+                pageArea.setText(pages.get(currentPage));
+            }
+        });
+
+        JButton backButton = new JButton("Back");
+        backButton.setBounds(370, 450, 80, 30);
+        backButton.addActionListener(_ -> showBookMenu());
+
+        readerPanel.add(bookTitle);
+        readerPanel.add(pageArea);
+        readerPanel.add(nextPage);
+        readerPanel.add(previousPage);
+        readerPanel.add(backButton);
+
+        if (editable) {
+            JButton apply = new JButton("Apply");
+            apply.setBounds(410, 450, 80, 30);
+            backButton.setBounds(310, 450, 80, 30);
+            apply.addActionListener(_ -> {
+                pages.set(currentPage, pageArea.getText());
+                try {
+                    service.editBookContent(selectedBook.getId(), String.join("", pages));
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(readerPanel, "Information submitted successfully");
+                }
+            });
+            readerPanel.add(apply);
+        }
+
+        getContentPane().removeAll();
+        add(readerPanel);
+        revalidate();
+        repaint();
     }
-
 }
