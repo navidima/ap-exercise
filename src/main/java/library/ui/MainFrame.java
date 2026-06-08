@@ -5,6 +5,7 @@ import main.java.library.service.LibraryService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -220,8 +221,11 @@ public class MainFrame extends JFrame {
                 pages.set(currentPage, pageArea.getText());
                 try {
                     service.editBookContent(selectedBook.getId(), String.join("", pages));
+                    JOptionPane.showMessageDialog(readerPanel, "Your changes have been successfully sav");
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(readerPanel, "Information submitted successfully");
+                    JOptionPane.showMessageDialog(readerPanel,
+                            String.format("Something Went Wrong In Editing File %s",
+                                    new File(selectedBook.getTextFilePath()).getAbsolutePath()));
                 }
             });
             readerPanel.add(apply);
