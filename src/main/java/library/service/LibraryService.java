@@ -3,7 +3,6 @@ package main.java.library.service;
 import main.java.library.model.Book;
 import main.java.library.util.FileManager;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,31 +49,5 @@ public class LibraryService {
             }
         }
         return false;
-    }
-
-    public List<String> getBookPages(Book book, int linesPerPage) {
-        return FileManager.readBookPages(book.getTextFilePath(), linesPerPage);
-    }
-
-    public String readFullText(int bookId) {
-        return findBookById(bookId)
-                .map(Book::getTextFilePath)
-                .map(FileManager::readFullText)
-                .orElse("");
-    }
-
-    public boolean editBookContent(int bookId, String newContent) throws IOException {
-        Optional<Book> book = findBookById(bookId);
-
-        if (book.isEmpty()) {
-            return false;
-        }
-
-        FileManager.writeBookText(book.get().getTextFilePath(), newContent);
-        return true;
-    }
-
-    public int countLines(Book book) {
-        return FileManager.countLines(book.getTextFilePath());
     }
 }
