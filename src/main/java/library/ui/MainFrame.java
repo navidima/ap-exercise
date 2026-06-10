@@ -8,6 +8,8 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class MainFrame extends JFrame {
     public JTextField publisherField;
     public JTextField yearField;
     public JTextArea pageArea;
-    public List pages;
+    public List<String> pages;
     public int currentPage;
     public MainFrame()
     {
@@ -191,8 +193,79 @@ public class MainFrame extends JFrame {
 
     }
 
-    public void openBook(boolean editable)
-    {
+    public void openBook(boolean editable) {
+
+
+        readerPanel.removeAll();
+        pages = service.getBookPages(selectedBook, 3);
+        currentPage = 0;
+
+        JLabel bookTitle = new JLabel(selectedBook.getTitle(), SwingConstants.CENTER);
+        bookTitle.setBounds(280, 10, 240, 25);
+        bookTitle.setFont(new Font("Times New Roman", Font.BOLD, 20));
+
+        pageArea = new JTextArea();
+        pageArea.setBounds(80, 40, 640, 400);
+        pageArea.setMargin(new Insets(15, 15, 10, 15));
+        pageArea.setEditable(editable);
+        pageArea.setLineWrap(true);
+        pageArea.setWrapStyleWord(true);
+        pageArea.setText(pages.get(currentPage));
+        pageArea.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+        pageArea.setBackground(Color.decode("#F5F1E8"));
+        pageArea.setForeground(Color.decode("#2C2C2C"));
+        pageArea.setCaretColor(Color.red);
+
+        JButton nextPage = new JButton(">");
+        nextPage.setBounds(660, 450, 60, 30);
+        nextPage.addActionListener(_ -> {
+            if (currentPage < pages.size() - 1) {
+                currentPage ++;
+                pageArea.setText(pages.get(currentPage));
+            }
+        });
+
+        JButton previousPage = new JButton("<");
+        previousPage.setBounds(80, 450, 60, 30);
+        previousPage.addActionListener(_ -> {
+            if (currentPage > 0) {
+                currentPage --;
+                pageArea.setText(pages.get(currentPage));
+            }
+        });
+
+        JButton backButton = new JButton("Back");
+        backButton.setBounds(370, 450, 80, 30);
+        backButton.addActionListener(_ -> showBookMenu());
+
+        readerPanel.add(bookTitle);
+        readerPanel.add(pageArea);
+        readerPanel.add(nextPage);
+        readerPanel.add(previousPage);
+        readerPanel.add(backButton);
+
+        if (editable) {
+            JButton apply = new JButton("Apply");
+            apply.setBounds(410, 450, 80, 30);
+            backButton.setBounds(310, 450, 80, 30);
+            apply.addActionListener(_ -> {
+                pages.set(currentPage, pageArea.getText());
+                try {
+                    service.editBookContent(selectedBook.getId(), String.join("", pages));
+                    JOptionPane.showMessageDialog(readerPanel, "Your changes have been successfully sav");
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(readerPanel,
+                            String.format("Something Went Wrong In Editing File %s",
+                                    new File(selectedBook.getTextFilePath()).getAbsolutePath()));
+                }
+            });
+            readerPanel.add(apply);
+        }
+
+        getContentPane().removeAll();
+        add(readerPanel);
+        revalidate();
+        repaint();
 
     }
 

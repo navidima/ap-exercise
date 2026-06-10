@@ -34,10 +34,11 @@ public class FileManager {
     {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(BOOK_LIST_CSV)))
         {
-            bw.write("title,author,publisher,year,file");
+            bw.write("Title,Author,Publisher,Publication Year,Path");
             bw.newLine();
             for (Book book : books) {
-                bw.write(book.getTitle() + "," + book.getAuthor() + "," + book.getPublisher() + "," + book.getPublicationYear() + "," + book.getTextFilePath());
+                bw.write(book.getTitle() + "," + book.getAuthor() + "," + book.getPublisher() +
+                        "," + book.getPublicationYear() + "," + new File(book.getTextFilePath()).getName());
                 bw.newLine();
             }
         } catch (IOException e) {
