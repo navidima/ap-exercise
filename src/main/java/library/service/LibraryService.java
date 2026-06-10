@@ -4,6 +4,7 @@ import main.java.library.model.Book;
 import main.java.library.util.FileManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +54,7 @@ public class LibraryService {
     }
 
     public List<String> getBookPages(Book book, int linesPerPage) {
-        return FileManager.readBookPages(book.getTextFilePath(), linesPerPage);
+        return new ArrayList<>(FileManager.readBookPages(book.getTextFilePath(), linesPerPage));
     }
 
     public String readFullText(int bookId) {
