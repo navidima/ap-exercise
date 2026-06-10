@@ -174,6 +174,7 @@ public class MainFrame extends JFrame {
         menuPanel.add(authorLabel);
         menuPanel.add(publisherLabel);
         menuPanel.add(yearLabel);
+        menuPanel.add(lineCount);
 
         menuPanel.add(titleField);
         menuPanel.add(authorField);
