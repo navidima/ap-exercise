@@ -114,7 +114,8 @@ public class MainFrame extends JFrame {
         yearField.setBounds(270, 230, 350, 30);
         yearField.setText(String.valueOf(selectedBook.getPublicationYear()));
 
-        // Count line must show here
+        JLabel lineCount = new JLabel("Line count: " + service.countLines(selectedBook));
+        lineCount.setBounds(150, 290, 100, 30);
 
         JButton readButton = new JButton("Read Book");
         readButton.setBounds(150, 350, 110, 35);

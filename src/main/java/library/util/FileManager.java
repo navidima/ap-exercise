@@ -22,8 +22,7 @@ public class FileManager {
             while (scn.hasNextLine()) {
                 String bookLine = scn.nextLine();
                 String[] details = bookLine.split(",");
-                Book newBook = new Book(details[0],details[4],details[1],details[2],Integer.parseInt(details[3]));
-                books.add(newBook);
+                Book newBook = new Book(details[0],BOOKS_TEXT_DIR + File.separator + details[4],details[1],details[2],Integer.parseInt(details[3]));                books.add(newBook);
             }
         } catch (FileNotFoundException e) {
             System.err.println("file \"" + bookList.getAbsolutePath() + "\" does not exist");
